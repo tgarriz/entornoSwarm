@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "maestro" do |maestro|
     maestro.vm.provision :shell, path: "instalador_docker.sh", privileged: true
     maestro.vm.provision :shell, path: "set_hostname.sh", privileged: true
-    maestro.vm.network "public_network", ip: "192.168.99.100"
+    maestro.vm.network "public_network", ip: "192.168.0.100"
     #maestro.ssh.username = 'maestro'
     #maestro.ssh.password = 'mas123'
     #maestro.vm.provision "file", source:"~/lab/maestro/hostn_m1", destination: "/etc/hostname"
@@ -77,7 +77,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "esclavo1" do |esclavo1|
     esclavo1.vm.provision :shell, path: "instalador_docker.sh", privileged: true
     esclavo1.vm.provision :shell, path: "set_hostname_e1.sh", privileged: true
-    esclavo1.vm.network "public_network", ip: "192.168.99.150"
+    esclavo1.vm.network "public_network", ip: "192.168.0.150"
     #esclavo1.ssh.username = 'esclavo1'
     #esclavo1.ssh.password = 'esc123'
     #esclavo1.vm.provision "file", source:"~/lab/maestro/hostn_e1", destination: "/etc/hostname"
@@ -88,7 +88,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "esclavo2" do |esclavo2|
     esclavo2.vm.provision :shell, path: "instalador_docker.sh", privileged: true
     esclavo2.vm.provision :shell, path: "set_hostname_e2.sh", privileged: true
-    esclavo2.vm.network "public_network", ip: "192.168.99.152"
+    esclavo2.vm.network "public_network", ip: "192.168.0.152"
     #esclavo2.ssh.username = 'esclavo2'
     #esclavo2.ssh.password = 'esc123'
     #esclavo2.vm.provision "file", source:"~/lab/maestro/hostn_e2", destination: "/etc/hostname"
