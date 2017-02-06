@@ -65,9 +65,10 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.define "maestro" do |maestro|
+    maestro.vm.hostname = "maestro"
     maestro.vm.provision :shell, path: "instalador_docker.sh", privileged: true
     maestro.vm.provision :shell, path: "set_hostname.sh", privileged: true
-    maestro.vm.network "public_network", ip: "192.168.0.100"
+    maestro.vm.network "private_network", ip: "10.10.0.250"
     #maestro.ssh.username = 'maestro'
     #maestro.ssh.password = 'mas123'
     #maestro.vm.provision "file", source:"~/lab/maestro/hostn_m1", destination: "/etc/hostname"
@@ -75,9 +76,10 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "esclavo1" do |esclavo1|
+    esclavo1.vm.hostname = "esclavo1"
     esclavo1.vm.provision :shell, path: "instalador_docker.sh", privileged: true
-    esclavo1.vm.provision :shell, path: "set_hostname_e1.sh", privileged: true
-    esclavo1.vm.network "public_network", ip: "192.168.0.150"
+    esclavo1.vm.provision :shell, path: "set_hostname.sh", privileged: true
+    esclavo1.vm.network "private_network", ip: "10.10.0.251"
     #esclavo1.ssh.username = 'esclavo1'
     #esclavo1.ssh.password = 'esc123'
     #esclavo1.vm.provision "file", source:"~/lab/maestro/hostn_e1", destination: "/etc/hostname"
@@ -86,9 +88,10 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "esclavo2" do |esclavo2|
+    esclavo2.vm.hostname = "esclavo2"
     esclavo2.vm.provision :shell, path: "instalador_docker.sh", privileged: true
-    esclavo2.vm.provision :shell, path: "set_hostname_e2.sh", privileged: true
-    esclavo2.vm.network "public_network", ip: "192.168.0.152"
+    esclavo2.vm.provision :shell, path: "set_hostname.sh", privileged: true
+    esclavo2.vm.network "private_network", ip: "10.10.0.252"
     #esclavo2.ssh.username = 'esclavo2'
     #esclavo2.ssh.password = 'esc123'
     #esclavo2.vm.provision "file", source:"~/lab/maestro/hostn_e2", destination: "/etc/hostname"
