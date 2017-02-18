@@ -1,0 +1,23 @@
+Contruir una Imgen Docker
+
+Para contruir una imagen de contenedor docker se debe escribir un archivo Dockerfile, (similar a lo que seria un Vagrantfile), este archivo es una receta para contruir la imagen que describe, archivos, entorno y comandos que va a levantar la imagen.
+El comando docker build construye la nueva imagen leyendo las instrucciones del fichero Dockerfile y la información de un entorno, que para nosotros va a ser un directorio (aunque también podemos guardar información, por ejemplo, en un repositorio git).
+La creación de la imagen es ejecutada por el docker engine, que recibe toda la información del entorno, por lo tanto es recomendable guardar el Dockerfile en un directorio vacío y añadir los ficheros necesarios para la creación de la imagen. El comando docker build ejecuta las instrucciones de un Dockerfile línea por línea y va mostrando los resultados en pantalla.
+Tenemos que tener en cuenta que cada instrucción ejecutada crea una imagen intermedia, una vez finalizada la construcción de la imagen nos devuelve su id. Alguna imágenes intermedias se guardan en caché, otras se borran. Por lo tanto, si por ejemplo, en un comando ejecutamos cd /scripts/ y en otra linea le mandamos a ejecutar un script (./install.sh) no va a funcionar, ya que ha lanzado otra imagen intermedia. Teniendo esto en cuenta, la manera correcta de hacerlo sería:
+
+	$ cd /scripts/;./install.sh
+
+Para terminar indicar que la creación de imágenes intermedias generadas por la ejecución de cada instrucción del Dockerfile, es un mecanismo de caché, es decir, si en algún momento falla la creación de la imagen, al corregir el Dockerfile y volver a construir la imagen, los pasos que habían funcionado anteriormente no se repiten ya que tenemos a nuestra disposición las imágenes intermedias, y el proceso continúa por la instrucción que causó el fallo.
+Un dockerfile tiene estamentos basicos
+	-FROM <imagen>:<tag> : esta palabra clave define de que imagen de dockerhub se basara su imagen
+	-MANTAINER <nombre> <Correo>: define quien mantiene dicha imagen
+	-RUN: define que comandos se ejecutaran durante la creacion de la instancia, cada run genera una capa intermedia, por lo que deben ser lo menos posibles para que halla la menor cantidad de imgenes intermedias (capas) creadas.
+	Tiene 2 formatos:
+		-RUN ["ejecutable", "parámetro1", "parámetro2"]
+		-RUN apt-get update && apt-get install -y apache2
+	-ENV <key>=<value> :Para establecer variables de entorno dentro de la imagen.
+	-ADD ADD <src> <dest>: copia archivos o directorios de una ubicacion especifica al sistema de ficheros de la imagen.
+	-EXPOSE <port host>:<port image> : especifica el port por el cual publica un servicio.
+Buenas Praćticas
+-Los contenedores deben ser efímeros, es decir deben tener una configuración mínima, para ser agil su creacion, parada y despliegue.
+-Todos los ficheros del entorno (es decir el directorio en el cual se encuentra el dockerfile) son enviados al docker engine, por lo tanto es recomendable usar un directorio vacio, y si en el vamos a poner archivos inecesarios para la creacion de la imagen se debe crear un archivo ".dockerignore" especificando archivos y directorios a ignorar para la creacion de dicha imgen.
