@@ -1,0 +1,118 @@
+Docker Swarm Mode
+
+Un Swarm consiste en un o mas nodos (ya sean fisicos o virtuales) corriendo docker engine en modo swarm.
+Estos nodos pueden ser de 2 tipos:
+	-Managers: Son los nodos que administran als tareas del swarm y tienen 3 funciones ppales
+		-Mantener el estado del cluster
+		-Scheduler de servicios
+		-Servir al swarm de HTTP API endpoints
+	 Para aprobechar la caracteristica de tolerancia a fallos que probee el swarm, docker recomienda usar 3 o mas managers ya que cuando tiene mas de un amnagers puede recuperarse de la caida de uno de estos sin tiempo de inactividad. Un swarm de 3 managers soporta una caida de uno. Un grupo de N managers tolerara una perdida de como maximo (N-1)/2 sin perdida de inactividad.
+	 Una nota importante es qeu agregar mas managers no dara al swarm mayor escalabilidad si no que al contrario.
+
+	-Workers: son nodos cuya unica finalidad es ejecutar contenedores
+
+Cambiar roles de los nodos
+
+Para promover un worker a manager podemos ejecutar
+
+$ docker node promote NODE [NODE...]
+
+Para degradar un managers a worker 
+
+$ docker node demote NODE [NODE...]
+
+
+
+
+
+Suponiendo que ya tenemos un entorno de virtuals con docker engine instalado de 3 maquinas, 1 nodo manager y dos nodos esclavos.
+Todos los nodos se ven entre si, condicion indispensable.
+	-Nodo Manager: ip:10.10.0.250, hostname: maestro.
+	-Nodo Esclavo 1: ip:10.10.0.251, hostname: esclavo1.
+	-Nodo Esclavo 2: ip:10.10.0.252, Hostname: esclavo2.
+
+1_Creando la swarm
+	a) Estableciendo el manager.
+
+$ docker swarm init --advertise-addr 10.10.0.250
+
+Swarm initialized: current node (dxn1zf6l61qsb1josjja83ngz) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join \
+    --token SWMTKN-1-49nj1cmql0jkz5s954yi3oex3nedyz0fb0xx14ie39trti4wxv-8vxv8rssmk743ojnwacrr2e7c \
+    10.10.0.250:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+
+El --advertise-addr establece el nodo manager y como resultado da el comando para asociar los nodos esclavos.
+
+2_De acuerdo al comando anterior, para agregar mas nodos al swarm seria
+
+docker swarm join \
+  --token  SWMTKN-1-49nj1cmql0jkz5s954yi3oex3nedyz0fb0xx14ie39trti4wxv-8vxv8rssmk743ojnwacrr2e7c \
+  10.10.0.250:2377
+
+Este comando se utiliza con todos los nodos que querramos agregar al swarm.
+
+3_Comandos para ver el estado del swarm
+
+$ docker info --> muestra el estado actual del swarm.
+$ docker node ls --> lista los nodos quye conforman el swarm.
+
+4_Creando servicios
+
+$ docker service create --replicas 1 --name myredis redis:latest
+
+Este comando crea un servicio con nombre myredis, lo replica solo una vez y redis es la imagen del servicio y latest la version.
+Luego con
+
+$ docker service ls --> listamos los servicios corriendo en el swarm.
+
+5_Inspeccionar servicios
+
+$docker service inspect myredis --> inspeccionamos el estado del servicio myredis, la salida es un json dificil de interpretar, para mejorar la info agregamos el flag --pretty al comando inspect.
+
+$docker service inspect --pretty myredis
+
+$docker service ps myredis  --> lista los contenedores que ejecutan un servicio (y en que nodo se ejecutan).
+
+6_Escalando un servicio
+
+$docker service scale myredis=10 --> crea 10 contenedores que distribuye entre los nodos del swarm.
+
+7_Actualizando Servicios
+
+Supongamos tenemos un servicio de redis
+
+$ docker service create \
+  --replicas 3 \
+  --name myredis \
+  --update-delay 10s \
+  redis:3.0.6
+
+Para actualizar a la ultima version de la imagen redis sería
+
+$ docker service update --image redis:3.0.7 myredis
+
+Aunque leyendo por ahi, los que saben dicen, mata contenedor y create uno nuevo con la nueva imagen, con este enfoque hay que tener cuidado con tener los datos que uno mete montados con algun volumen.
+
+7_Drenar un nodo a fin de hacerle mantenimiento para luego restaurar los contenedores
+
+$ docker node update --availability active worker1+7
+8_Publicando un puerto para un servicio
+
+En el caso de que lo especifiqueos cuando creamos el contenedor se agrega un flag y quedaria algo como
+
+$ docker service create --name my-web --publish 8080:80 --replicas 2 nginx
+
+O en el caso de que ya tengamos un servicio iniciado, podemos asignarle un puerto de publicacion
+
+$ docker service update --publish-add <PUBLISHED-PORT>:<TARGET-PORT> <SERVICE>
+
+Por default, cuando publicamos un puerto, es un puerto tcp, en el caso de necesitar un puerto udp se debe especificar.
+
+$ docker service create --name dns-cache -p 53:53/udp dns-cache
+
+
