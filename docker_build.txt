@@ -18,6 +18,27 @@ Un dockerfile tiene estamentos basicos
 	-ENV <key>=<value> :Para establecer variables de entorno dentro de la imagen.
 	-ADD ADD <src> <dest>: copia archivos o directorios de una ubicacion especifica al sistema de ficheros de la imagen.
 	-EXPOSE <port host>:<port image> : especifica el port por el cual publica un servicio.
+	-CMD y ENTRYPOINT: Estas dos instrucciones nos permiten especificar el comando que se va a ejecutar por defecto, sino indicamos ninguno cuando ejecutamos el docker run. Normalmente las imágenes bases (debian, ubuntu,…) están configuradas con estas instrucciones para ejecutar el comando /bin/sh o /bin/bash.
+	El CMD tiene tres formatos:
+		-CMD ["ejecutable", "parámetro1", "parámetro2"] --> formato de ejecucion.
+		-CMD comando parámetro1 parámetro2 --> modo shell
+		-CMD ["parámetro1","parámetro2"] --> este es una forma para utilizar en conjunto con entrypoint
+	Solo puede haber una intruccion CMD en un dockerfile, si hay mas de una solo ejecuta la ultima. El cmd permite que el usuario ejecute otro comando al inicial el contenedor.
+	El comando ENTRYPOINT tiene 2 formatos:
+		-ENTRYPOINT ["ejecutable", "parámetro1", "parámetro2"] --> formato de ejecución.
+		-ENTRYPOINT comando parámetro1 parámetro2 --> modo shell
+	En este caso el usuario no puede indicar otro comando al usar el contenedor.
+	Se puede usar junto a una instrucción CMD, donde se indicará los parámetro por defecto que tendrá el comando indicado en el ENTRYPOINT. Cualquier argumento que pasemos en la línea de comandos mediante docker run serán anexados después de todos los elementos especificados mediante la instrucción ENTRYPOINT, y anulará cualquier elemento especificado con CMD.
+	Ejemplo:
+		Si tenemos un fichero Dockerfile, que tiene las siguientes instrucciones:
+
+			ENTRYPOINT [“http”, “-v ]”
+			CMD [“-p”, “80”]
+		Podemos crear un contenedor a partir de la imagen generada:
+
+		$ docker run centos:centos7: Se creará el contenedor con el servidor web escuchando en el puerto 80.
+		$ docker run centos:centros7 -p 8080: Se creará el contenedor con el servidor web escuchando en el puerto 8080.
+
 Buenas Praćticas
 -Los contenedores deben ser efímeros, es decir deben tener una configuración mínima, para ser agil su creacion, parada y despliegue.
 -Todos los ficheros del entorno (es decir el directorio en el cual se encuentra el dockerfile) son enviados al docker engine, por lo tanto es recomendable usar un directorio vacio, y si en el vamos a poner archivos inecesarios para la creacion de la imagen se debe crear un archivo ".dockerignore" especificando archivos y directorios a ignorar para la creacion de dicha imgen.
