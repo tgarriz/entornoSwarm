@@ -42,3 +42,23 @@ Un dockerfile tiene estamentos basicos
 Buenas Praćticas
 -Los contenedores deben ser efímeros, es decir deben tener una configuración mínima, para ser agil su creacion, parada y despliegue.
 -Todos los ficheros del entorno (es decir el directorio en el cual se encuentra el dockerfile) son enviados al docker engine, por lo tanto es recomendable usar un directorio vacio, y si en el vamos a poner archivos inecesarios para la creacion de la imagen se debe crear un archivo ".dockerignore" especificando archivos y directorios a ignorar para la creacion de dicha imgen.
+
+Ejemplos de Dockerfiles
+
+-Creando imagen de debian con apache y un index.html personalizado
+---------------------------***-------------------------
+FROM debian
+MAINTAINER José Domingo Muñoz "josedom24@gmail.com"
+
+RUN apt-get update && apt-get install -y apache2 && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_LOG_DIR /var/log/apache2
+
+EXPOSE 80
+ADD ["index.html","/var/www/html/"]
+
+ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+---------------------------***-------------------------
+
