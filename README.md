@@ -4,5 +4,3 @@ Requisitos:
 
 	-Tener instalado vagrant y virtualbox.
 	
-	-Ganas de aprender!!
-	
