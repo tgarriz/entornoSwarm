@@ -98,4 +98,11 @@ Vagrant.configure("2") do |config|
     #esclavo2.vm.provision "file", source:"~/lab/maestro/hosts", destination: "/etc/hosts"
   end
 
+  config.vm.define "esclavo3" do |esclavo3|
+    esclavo3.vm.hostname = "esclavo3"
+    esclavo3.vm.provision :shell, path: "instalador_docker.sh", privileged: true
+    esclavo3.vm.provision :shell, path: "set_hostname.sh", privileged: true
+    esclavo3.vm.network "private_network", ip: "10.10.0.253"
+  end
+
 end
